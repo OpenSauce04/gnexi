@@ -4,6 +4,11 @@ require 'rubygems'
 require 'zip'
 require 'json'
 
+if ARGV[0] == "-v" then
+  puts "gnexi 0.1"
+  exit 0
+end
+
 extArchive = ARGV[0]
 
 if extArchive == nil then
