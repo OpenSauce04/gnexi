@@ -1,0 +1,15 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    json_pure (2.6.3)
+    rubyzip (2.3.2)
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  json_pure (~> 2.6)
+  rubyzip
+
+BUNDLED WITH
+   2.4.19

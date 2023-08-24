@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'zip'
+require 'json'
+
+extArchive = ARGV[0]
+
+if extArchive == nil then
+  puts "ERROR: No filename given"
+  puts "Usage: gnexi [extension archive path]"
+  exit 1
+end
+
+if not File.exist?(extArchive) then
+  puts "ERROR: File \""+extArchive+"\" does not exist"
+  exit 2
+end
+
+tmpFile = "/tmp/gnexi.tmp"
+gnomeFolder = File.expand_path "~/.local/share/gnome-shell/extensions/"
+
+File.delete(tmpFile) if File.exist?(tmpFile)
+begin
+  Zip::File.open(extArchive) do |zipfile|
+    zipfile.each do |file|
+      if file.name == "metadata.json"
+        file.extract(tmpFile)
+        break
+      end
+    end
+  end
+rescue
+  puts "ERROR: Failed to read archive \""+extArchive+"\""
+  exit 3
+end
+uuid = JSON.parse(File.read(tmpFile))['uuid']
+puts "Installing extension \""+uuid+"\"..."
+File.delete(tmpFile) if File.exist?(tmpFile)
+
+extFolder = File.join(gnomeFolder, uuid)
+if File.exist?(extFolder)
+  puts "  Old version of extension found; removing..."
+  FileUtils.rm_rf extFolder
+end
+Dir.mkdir extFolder
+
+Zip::File.open("test.zip") do |zipfile|
+  zipfile.each do |file|
+    destFolder = File.join(extFolder, File.dirname(file.name))
+    if not File.exist?(destFolder) then
+      FileUtils.mkdir_p destFolder
+    end
+    file.extract File.join(extFolder, file.name)
+  end
+end
+
+puts "Done. Restart GNOME to see the extension in the Extensions app"
